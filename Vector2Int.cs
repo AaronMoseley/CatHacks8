@@ -61,6 +61,29 @@ namespace CatHacks8
             return new Vector2Int(a.GetX() - b.GetX(), a.GetY() - b.GetY());
         }
 
+        public void Clamp(int min, int max)
+        {
+            if(x < min)
+            {
+                x = min;
+            }
+
+            if(y < min)
+            {
+                y = min;
+            }
+
+            if(x > max)
+            {
+                x = max;
+            }
+
+            if(y > max)
+            {
+                y = max;
+            }
+        }
+
         private int x;
         private int y;
     }

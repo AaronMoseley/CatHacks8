@@ -15,6 +15,7 @@ namespace CatHacks8
             endPos = end;
 
             ghosts = new List<Ghost>();
+            coinPositions = new List<Vector2Int>();
 
             nodes = new MapNode[sideLength, sideLength];
 
@@ -37,7 +38,10 @@ namespace CatHacks8
 
         public List<Ghost> GetGhostPositions()
         {
-            return ghosts;
+            if(ghosts.Count > 0)
+                return ghosts;
+
+            return null;
         }
 
         public Vector2Int GetStart()
@@ -60,10 +64,10 @@ namespace CatHacks8
             ghosts.Add(newGhost);
         }
 
-        public void GenerateMap(int numRooms, int maxRoomSize, int minRoomSize)
+        public void GenerateMap(int numRooms, int maxRoomSize, int minRoomSize, int numPossibleCoins)
         {
             TimeSpan t = (DateTime.UtcNow - new DateTime(1970, 1, 1));
-            Random rand = new Random((int)t.TotalMilliseconds);
+            Random rand = new Random((int)t.TotalSeconds);
 
             Vector2Int[] roomPositions = new Vector2Int[numRooms + 2];
 
@@ -84,23 +88,26 @@ namespace CatHacks8
 
             SearchMap[] maps = new SearchMap[numRooms + 1];
 
-            maps[0] = new SearchMap(startPos, endPos, sideLength);
+            maps[0] = new SearchMap(startPos, endPos, sideLength, new Vector2Int(-1, -1));
             paths[0] = maps[0].DFS();
 
             for(int i = 1; i < paths.Length; i++)
             {
-                maps[i] = new SearchMap(startPos, roomPositions[i + 1], sideLength);
+                maps[i] = new SearchMap(startPos, roomPositions[i + 1], sideLength, new Vector2Int(-1, -1));
                 paths[i] = maps[i].DFS();
             }
 
             for (int i = 0; i < paths.Length; i++)
             {
-                while(paths[i].Count() > 0)
+                if (paths[i] != null)
                 {
-                    MapNode currNode = GetNodeByPos(paths[i].Pop());
-                    currNode.SetBlocked(false);
+                    while (paths[i].Count() > 0)
+                    {
+                        MapNode currNode = GetNodeByPos(paths[i].Pop());
+                        currNode.SetBlocked(false);
 
-                    currNode.SetChar(DetermineChar(currNode));
+                        currNode.SetChar(DetermineChar(currNode));
+                    }
                 }
             }
 
@@ -121,6 +128,38 @@ namespace CatHacks8
                     }
                 }
             }
+
+            for(int i = 0; i < numPossibleCoins; i++)
+            {
+                Vector2Int newPos = new Vector2Int(rand.Next(sideLength), rand.Next(sideLength));
+
+                bool match = false;
+                for(int j = 0; j < coinPositions.Count; j++)
+                {
+                    if(newPos == coinPositions[j])
+                    {
+                        match = true;
+                    }
+                }
+
+                if (newPos == startPos || newPos == endPos)
+                    match = true;
+
+                if(!GetNodeByPos(newPos).GetBlocked() && !match)
+                {
+                    coinPositions.Add(newPos);
+                }
+            }
+        }
+
+        public List<Vector2Int> GetCoinPositions()
+        {
+            return coinPositions;
+        }
+
+        public void SetCoinPositions(List<Vector2Int> newPos)
+        {
+            coinPositions = newPos;
         }
 
         private int DetermineChar(MapNode node)
@@ -142,5 +181,6 @@ namespace CatHacks8
         private Vector2Int startPos;
         private Vector2Int endPos;
         private List<Ghost> ghosts;
+        private List<Vector2Int> coinPositions;
     }
 }

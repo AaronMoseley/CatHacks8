@@ -20,7 +20,7 @@ namespace CatHacks8
         {
             position = pos;
             playerSeen = false;
-            blocked = false;
+            blocked = true;
             currChar = 1;
         }
 

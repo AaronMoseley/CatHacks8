@@ -23,14 +23,14 @@ namespace CatHacks8
                 {
                     SearchNode newNode = new SearchNode();
                     newNode.SetPosition(new Vector2Int(i, j));
-                    newNode.SetOpen(map.GetNodeByPos(new Vector2Int(i, j)).GetBlocked());
+                    newNode.SetOpen(!map.GetNodeByPos(new Vector2Int(i, j)).GetBlocked());
 
                     nodes[i, j] = newNode;
                 }
             }
         }
 
-        public SearchMap(Vector2Int startPos, Vector2Int endPos, int sideLength)
+        public SearchMap(Vector2Int startPos, Vector2Int endPos, int sideLength, Vector2Int blockPos)
         {
             this.startPos = startPos;
             this.endPos = endPos;
@@ -45,13 +45,21 @@ namespace CatHacks8
                 }
             }
 
+            SearchNode blockNode = GetNodeByPos(blockPos);
+
+            if(blockNode != null)
+            {
+                blockNode.SetOpen(false);
+            }
+
             nodes = newNodes;
         }
 
         public SearchNode GetNodeByPos(Vector2Int pos)
         {
-            if (pos.GetX() < nodes.GetLength(0) && pos.GetY() < nodes.GetLength(1) && pos.GetX() >= 0 && pos.GetY() >= 0)
-                return nodes[pos.GetX(), pos.GetY()];
+            if(nodes != null)
+                if (pos.GetX() < nodes.GetLength(0) && pos.GetY() < nodes.GetLength(1) && pos.GetX() >= 0 && pos.GetY() >= 0 && nodes.Length > 0)
+                    return nodes[pos.GetX(), pos.GetY()];
 
             return null;
         }
@@ -79,12 +87,12 @@ namespace CatHacks8
                 {
                     currNode.SetVisited(true);
 
-                    SearchNode nextNode = currNode;
+                    SearchNode nextNode;
 
                     int[] priority = { -1, -1, -1, -1 };
                     for (int i = 0; i < priority.Length; i++)
                     {
-                        int index = -1;
+                        int index;
                         do
                         {
                             index = rand.Next(4);
@@ -114,11 +122,14 @@ namespace CatHacks8
                                 case 3:
                                     offset = new Vector2Int(-1, 0);
                                     break;
+                                default:
+                                    Console.WriteLine("Switch Error");
+                                    break;
                             }
 
                             if (GetNodeByPos(currNode.GetPos() + offset) != null)
                             {
-                                if (!GetNodeByPos(currNode.GetPos() + offset).GetVisited())
+                                if (!GetNodeByPos(currNode.GetPos() + offset).GetVisited() && GetNodeByPos(currNode.GetPos() + offset).GetOpen())
                                 {
                                     nextNode = GetNodeByPos(currNode.GetPos() + offset);
                                     nextNode.SetVisited(true);
@@ -138,6 +149,7 @@ namespace CatHacks8
                         }
                         else
                         {
+                            Console.WriteLine("Error 1");
                             return null;
                         }
                     }
@@ -172,11 +184,13 @@ namespace CatHacks8
 
             while (currNode.GetPos() != endPos)
             {
+                currNode.SetVisited(true);
+
                 for (int i = 0; i < offsets.Length; i++)
                 {
                     if (GetNodeByPos(currNode.GetPos() + offsets[i]) != null)
                     {
-                        if (!GetNodeByPos(currNode.GetPos() + offsets[i]).GetVisited())
+                        if (GetNodeByPos(currNode.GetPos() + offsets[i]).GetOpen() && !GetNodeByPos(currNode.GetPos() + offsets[i]).GetVisited())
                         {
                             SearchNode peekNode = GetNodeByPos(currNode.GetPos() + offsets[i]);
                             peekNode.SetParent(currNode);
@@ -186,11 +200,17 @@ namespace CatHacks8
                     }
                 }
 
-                currNode = nodesToSearch.Dequeue();
+                if (nodesToSearch.Count > 0)
+                {
+                    currNode = nodesToSearch.Dequeue();
+                } else
+                {
+                    return null;
+                }
             }
 
             Stack<Vector2Int> result = new Stack<Vector2Int>();
-            while (currNode.GetParent() != null)
+            while (currNode.GetParent() != null && currNode.GetPos() != currNode.GetParent().GetPos())
             {
                 result.Push(currNode.GetPos());
                 currNode = currNode.GetParent();

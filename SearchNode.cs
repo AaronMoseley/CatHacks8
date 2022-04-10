@@ -11,7 +11,7 @@ namespace CatHacks8
         public SearchNode()
         {
             position = new Vector2Int();
-            open = false;
+            open = true;
             parent = null;
             visited = false;
         }
