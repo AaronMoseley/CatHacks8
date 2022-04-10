@@ -9,7 +9,7 @@ namespace CatHacks8
         {
             Sound music = new Sound();
 
-            string[] cheatCodes = { "capitalism", "ghostseatcarrots", "allseeingeye", "upupdowndownleftrightleftrightabstart", "seenoevil"};
+            string[] cheatCodes = { "capitalism", "ghostseatcarrots", "allseeingeye", "upupdowndownleftrightleftrightbastart", "seenoevil"};
 
             Console.Clear();
             Render render = new Render();
@@ -173,7 +173,7 @@ namespace CatHacks8
                     Console.Write(" You'll need it...\n");
                     Console.ForegroundColor = ConsoleColor.White;
                     Console.WriteLine("\nCharacters: \n.: Floor\n■: Wall\nH: Exit\n¶: Ghost\nS: Start Position\nP: Player\n0: Coin\n");
-                    Console.WriteLine("Enter anything to go back to the main menu.\n");
+                    Console.WriteLine("Enter anything to go back to the main menu.");
                 } else
                 {
                     PrintTaxEvasionInfo();
@@ -339,8 +339,13 @@ namespace CatHacks8
                         }
                     }
 
+                    if (run == numLevels - 1)
+                    {
+                        render.SetFinal(true);
+                    }
+
                     //Map Display
-                    Console.Clear();
+                    //Console.Clear();
                     render.Input(gameMap, player);
 
                     //Player Movement 
@@ -348,7 +353,15 @@ namespace CatHacks8
                     //Check for valid move position, false = game lost
                     //Check if move lands on exit, win game
 
-                    Console.WriteLine("Points: " + currPoints);
+                    if (!taxEvasion)
+                    {
+                        Console.WriteLine("Points: " + currPoints);
+                    } else
+                    {
+                        Console.WriteLine("Liberated Government Assets: " + currPoints);
+                    }
+
+                    Console.WriteLine("Floor: " + (run + 1) + " / " + numLevels);
                     Console.BackgroundColor = ConsoleColor.DarkGray;
                     Console.ForegroundColor = ConsoleColor.White;
                     Console.WriteLine("     ^     ");
@@ -564,7 +577,7 @@ namespace CatHacks8
                 Console.WriteLine("You also managed to liberate " + points + " dollars that were stolen by the IRS from hard-working citizens like yourself");
             }
 
-            Console.WriteLine("Enter anything to return to the main menu.\n");
+            Console.WriteLine("Enter anything to return to the main menu.");
 
             Console.ReadLine();
             Main(args);

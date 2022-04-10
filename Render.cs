@@ -15,9 +15,16 @@ namespace CatHacks8
             this.seeAll = seeAll;
         }
 
+        public void SetFinal(bool final)
+        {
+            finalLevel = final;
+        }
+
         //Run this at the first instance of a level to populate whole map
         public void InitRender(RealMap mapNodes, Player player)
         {
+            finalLevel = false;
+
             //Initialize map data arrays
             int sideLength = mapNodes.GetSideLength();
             vis_data = new int[sideLength, sideLength];
@@ -103,6 +110,8 @@ namespace CatHacks8
             }
 
             //Overlay player in post
+            playerPos.Clamp(0, mapNodes.GetSideLength() - 1);
+
             vis_data[playerPos.GetX(), playerPos.GetY()] = 6;
 
             Interpret();
@@ -124,13 +133,18 @@ namespace CatHacks8
                 }
 
             //Populate the standard map (Things that don't move)
-            for (int x = 0; x < vis_data.GetLength(0); x++)
-            {
-                for (int y = 0; y < vis_data.GetLength(1); y++)
+
+                for (int x = 0; x < vis_data.GetLength(0); x++)
                 {
-                    vis_disp[x, y] = type[vis_data[x, y]];
+                    for (int y = 0; y < vis_data.GetLength(1); y++)
+                    {
+                        vis_disp[x, y] = type[vis_data[x, y]];
+                        if (finalLevel && vis_data[x, y] == 3)
+                            vis_disp[x, y] = type[8];
+                    }
                 }
-            }
+           
+
 
             //Add the ghosts afterwards
             if(ghosts != null)
@@ -153,6 +167,7 @@ namespace CatHacks8
         {
             int sideLength = vis_disp.GetLength(0);
             Console.ForegroundColor = ConsoleColor.Blue;
+            Console.Clear();  //Clear right before reloading map
 
             for (int top_border = 0; top_border < sideLength + 2; top_border++)
                 Console.Write(" ■");
@@ -201,7 +216,7 @@ namespace CatHacks8
         private int[,] vis_sight;
 
         //Symbol types
-        private string[] type = { "  ", " ■", " .", " H", " ¶", " S", " P", " 0" };
+        private string[] type = { "  ", " ■", " .", " H", " ¶", " S", " P", " 0", " $" };
 
         //Arrays that store ghosts and coins
         private Vector2Int[] ghosts;
@@ -209,5 +224,6 @@ namespace CatHacks8
 
         //Toggle total visibility
         private bool seeAll;
+        private bool finalLevel;
     }
 }
