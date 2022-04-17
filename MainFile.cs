@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace CatHacks8
 {
@@ -32,7 +33,7 @@ namespace CatHacks8
             bool taxEvasion = false;
             bool invincible = false;
 
-            for(int i = 0; i < args.Length; i++)
+            for(int i = 1; i < args.Length; i++)
             {
                 if(args[i] == cheatCodes[0])
                 {
@@ -56,6 +57,27 @@ namespace CatHacks8
                         }
                     }
                 }
+            }
+
+            if (args.Length == 0)
+            {
+                string name;
+                Console.WriteLine("Please Input Your Name: ");
+                name = Console.ReadLine();
+
+                int spaceLoc = name.Length;
+                for (int i = 0; i < name.Length; i++)
+                {
+                    if(name[i] == ' ')
+                    {
+                        spaceLoc = i;
+                    }
+                }
+
+                name = name.Substring(0, spaceLoc);
+
+                string[] newArgs = { name };
+                Main(newArgs);
             }
 
             //Main Menu
@@ -101,7 +123,7 @@ namespace CatHacks8
             //Info Page Header
             //Difficulty Labels
             Console.WriteLine("\nDifficulties:");
-            Console.WriteLine("\t1: Easy\n\t2: Medium\n\t3: Hard\n\t4: Impossible\n\n5: Help Menu\n6: Quit");
+            Console.WriteLine("\t1: Easy\n\t2: Medium\n\t3: Hard\n\t4: Impossible\n\n5: Help Menu\n6: High Scores\n7: Quit");
             //Takes Input
 
             int inputNum = -1;
@@ -142,7 +164,7 @@ namespace CatHacks8
                         return;
                     }
                 }
-            } while (inputNum < 0 || inputNum > 6);
+            } while (inputNum < 0 || inputNum > 7);
             //Info Page (calls main after taking more input)
             if (inputNum == 5)
             {
@@ -180,7 +202,95 @@ namespace CatHacks8
                 }
                 Console.ReadLine();
                 Main(args);
-            } else if(inputNum == 6)
+            } else if (inputNum == 6)
+            {
+                Console.Clear();
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.WriteLine("      ___                       ___           ___                    ___           ___           ___           ___           ___           ___     ");
+                Console.WriteLine("     /\\  \\                     /\\__\\         /\\  \\                  /\\__\\         /\\__\\         /\\  \\         /\\  \\         /\\__\\         /\\__\\    ");
+                Console.WriteLine("     \\:\\  \\       ___         /:/ _/_        \\:\\  \\                /:/ _/_       /:/  /        /::\\  \\       /::\\  \\       /:/ _/_       /:/ _/_   ");
+                Console.WriteLine("      \\:\\  \\     /\\__\\       /:/ /\\  \\        \\:\\  \\              /:/ /\\  \\     /:/  /        /:/\\:\\  \\     /:/\\:\\__\\     /:/ /\\__\\     /:/ /\\  \\  ");
+                Console.WriteLine("  ___ /::\\  \\   /:/__/      /:/ /::\\  \\   ___ /::\\  \\            /:/ /::\\  \\   /:/  /  ___   /:/  \\:\\  \\   /:/ /:/  /    /:/ /:/ _/_   /:/ /::\\  \\ ");
+                Console.WriteLine(" /\\  /:/\\:\\__\\ /::\\  \\     /:/__\\/\\:\\__\\ /\\  /:/\\:\\__\\          /:/_/:/\\:\\__\\ /:/__/  /\\__\\ /:/__/ \\:\\__\\ /:/_/:/__/___ /:/_/:/ /\\__\\ /:/_/:/\\:\\__\\");
+                Console.WriteLine(" \\:\\/:/  \\/__/ \\/\\:\\  \\__  \\:\\  \\ /:/  / \\:\\/:/  \\/__/          \\:\\/:/ /:/  / \\:\\  \\ /:/  / \\:\\  \\ /:/  / \\:\\/:::::/  / \\:\\/:/ /:/  / \\:\\/:/ /:/  /");
+                Console.WriteLine("  \\::/__/       ~~\\:\\/\\__\\  \\:\\  /:/  /   \\::/__/                \\::/ /:/  /   \\:\\  /:/  /   \\:\\  /:/  /   \\::/~~/~~~~   \\::/_/:/  /   \\::/ /:/  / ");
+                Console.WriteLine("   \\:\\  \\          \\::/  /   \\:\\/:/  /     \\:\\  \\                 \\/_/:/  /     \\:\\/:/  /     \\:\\/:/  /     \\:\\~~\\        \\:\\/:/  /     \\/_/:/  /  ");
+                Console.WriteLine("    \\:\\__\\         /:/  /     \\::/  /       \\:\\__\\                  /:/  /       \\::/  /       \\::/  /       \\:\\__\\        \\::/  /        /:/  /   ");
+                Console.WriteLine("     \\/__/         \\/__/       \\/__/         \\/__/                  \\/__/         \\/__/         \\/__/         \\/__/         \\/__/         \\/__/    \n\n");
+
+                Console.ForegroundColor = ConsoleColor.White;
+                Console.WriteLine("Please input the number for the difficulty of the scores you want to view:");
+                Console.WriteLine("1. Easy\n2. Medium\n3. Hard\n4. Impossible\n\n Enter anything else to go back to the main menu");
+                string input = Console.ReadLine();
+                Console.Clear();
+                int inputNum1 = -1;
+                try
+                {
+                    inputNum1 = Int32.Parse(input);
+                } catch
+                {
+                    Main(args);
+                    return;
+                }
+
+                if (inputNum1 < 1 || inputNum1 > 4)
+                {
+                    Main(args);
+                    return;
+                }
+
+                string fileName = "";
+                switch (inputNum1)
+                {
+                    case 1:
+                        fileName = "EasyScores.txt";
+                        Console.WriteLine("Easy High Scores:");
+                        break;
+                    case 2:
+                        fileName = "MediumScores.txt";
+                        Console.WriteLine("Medium High Scores:");
+                        break;
+                    case 3:
+                        fileName = "HardScores.txt";
+                        Console.WriteLine("Hard High Scores:");
+                        break;
+                    case 4:
+                        fileName = "ImpossibleScores.txt";
+                        Console.WriteLine("Impossible High Scores:");
+                        break;
+                }
+
+                try
+                {
+                    string[] fs = System.IO.File.ReadAllLines(AppDomain.CurrentDomain.BaseDirectory + "\\" + fileName);
+
+                    for(int i = 0; i < fs.Length; i++)
+                    {
+                        int index = 0;
+                        do
+                        {
+                            Console.Write(fs[i][index]);
+                            index++;
+                        } while (fs[i][index] != ' ');
+
+                        index++;
+
+                        Console.Write(": " + fs[i].Substring(index) + "\n");
+                    }
+                } catch
+                {
+                    Console.WriteLine("No Scores To Display\nGet to work!\n");
+                    Console.WriteLine("\nEnter anything to return to the main menu.");
+                    Console.ReadLine();
+                    Main(args);
+                    return;
+                }
+
+                Console.WriteLine("\nEnter anything to return to the main menu.");
+                Console.ReadLine();
+                Main(args);
+                return;
+            } else if (inputNum == 7)
             {
                 System.Environment.Exit(0);
             }
@@ -465,7 +575,7 @@ namespace CatHacks8
 
                 if(run >= numLevels - 1)
                 {
-                    PlayerWin(currPoints, args, taxEvasion);
+                    PlayerWin(currPoints, args, taxEvasion, difficulty);
                     return;
                 }
 
@@ -547,9 +657,96 @@ namespace CatHacks8
             Console.ReadLine();
             Main(args);
         }
-        
-        static void PlayerWin(int points, string[] args, bool taxEvasion)
+
+        static void PlayerWin(int points, string[] args, bool taxEvasion, int difficulty)
         {
+            if (args.Length == 1)
+            {
+                string name = args[0];
+                List<string> names = new List<string>();
+                List<int> scores = new List<int>();
+
+                string fileName = "";
+                switch (difficulty)
+                {
+                    case 0:
+                        fileName = "EasyScores.txt";
+                        break;
+                    case 1:
+                        fileName = "MediumScores.txt";
+                        break;
+                    case 2:
+                        fileName = "HardScores.txt";
+                        break;
+                    case 3:
+                        fileName = "ImpossibleScores.txt";
+                        break;
+                }
+
+                try
+                {
+                    byte[] read = System.IO.File.ReadAllBytes(AppDomain.CurrentDomain.BaseDirectory + "\\" + fileName);
+
+
+                    char c = (char)0;
+                    int charNum = -1;
+                    int index = 0;
+                    while (index < read.Length)
+                    {
+                        string newName = "";
+                        string score = "";
+
+                        do
+                        {
+                            newName += (char)read[index];
+                            index++;
+                        } while ((char)read[index] != ' ');
+
+                        do
+                        {
+                            score += (char)read[index];
+                            index++;
+                        } while ((char)read[index] != '\n');
+                        index++;
+
+                        int scoreNum = Int32.Parse(score);
+
+                        names.Add(newName);
+                        scores.Add(scoreNum);
+                    }
+                }
+                catch
+                {
+                    names.Add(name);
+                    scores.Add(points);
+                }
+
+                bool inserted = false;
+                for (int i = 0; i < scores.Count; i++)
+                {
+                    if (points > scores[i] && !inserted)
+                    {
+                        scores.Insert(i, points);
+                        names.Insert(i, name);
+                        inserted = true;
+                    }
+                }
+
+                string fullText = "";
+
+                for (int i = 3; i < scores.Count; i++)
+                {
+                    scores.RemoveAt(i);
+                    names.RemoveAt(i);
+                }
+
+                for (int i = 0; i < scores.Count && i < 3; i++)
+                {
+                    fullText += names[i] + " " + scores[i].ToString() + "\n";
+                }
+
+                System.IO.File.WriteAllText(AppDomain.CurrentDomain.BaseDirectory + "\\" + fileName, fullText);
+            }
             Console.Clear();
 
             Console.ForegroundColor = ConsoleColor.Yellow;
